@@ -241,7 +241,7 @@ C.push(P("Author Contributions: Conceptualisation, P.W. and Z.Q.; methodology, P
 C.push(P("Funding: This research received no external funding.", { size: 20 }));
 C.push(P("Institutional Review Board Statement: Not applicable. This study used publicly available electrochemical cycling datasets and did not involve human participants or animals.", { size: 20 }));
 C.push(P("Informed Consent Statement: Not applicable.", { size: 20 }));
-C.push(P("Data Availability Statement: The datasets analysed in this study are publicly available. The Severson/MATR fast-charging dataset is distributed through the MATR repository, and the NASA PCoE battery ageing dataset through the NASA Open Data Portal. The processed features, data splits and analysis code that reproduce all results are available at [repository URL, e.g. GitHub/Zenodo/OSF] and, in the interim, from the corresponding author upon reasonable request.", { size: 20 }));
+C.push(P("Data Availability Statement: The datasets analysed in this study are publicly available. The Severson/MATR fast-charging dataset is distributed through the MATR repository, and the NASA PCoE battery ageing dataset through the NASA Open Data Portal. The analysis code and processing pipeline that reproduce all results are openly available at https://github.com/wandede0629/wandede; the processed features and data splits are additionally available from the corresponding author upon reasonable request.", { size: 20 }));
 C.push(P("Conflicts of Interest: The authors declare no conflict of interest.", { size: 20 }));
 C.push(H1("References"));
 const refs = [
