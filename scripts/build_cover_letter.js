@@ -18,7 +18,7 @@ C.push(P("Journal of Energy Storage", { italics: true, after: 240 }));
 
 C.push(P("Dear Editors,"));
 
-C.push(P("We are pleased to submit our manuscript, “An Interpretable and Uncertainty-Aware Framework for Lithium-Ion Battery State-of-Health and Remaining-Useful-Life Prognostics on Public Datasets,” for consideration as an original research article in Journal of Energy Storage."));
+C.push(P("We are pleased to submit our manuscript, “Interpretable and Uncertainty-Calibrated Lithium-Ion Battery Prognostics under Distribution Shift via Conformal Prediction and Physically Grounded Features,” for consideration as an original research article in Journal of Energy Storage."));
 
 C.push(P("Reliable state-of-health (SOH) and remaining-useful-life (RUL) estimation is central to battery management, yet most data-driven models report only a single number, offer little physical insight, and are evaluated under random data splits that overstate real-world performance. Our work targets these gaps directly: we build an interpretable, uncertainty-calibrated SOH/RUL framework and evaluate it under strict cell-level, batch-aware protocols on public cycling data, so that no in-house cell cycling is required and every result is fully reproducible."));
 
