@@ -73,9 +73,10 @@ def fig1():
         ax.text(x, y, s, fontsize=fs, ha=ha, va="top", color=c, fontweight=w)
 
     # ---- Zone 1: 数据 + 容量衰减缩略图 ----
-    txt(0.5, 5.25, "Severson / MATR (LFP, 1.1 Ah)\n182 parsed cells\n140 for SOH | 128 for RUL\n16,800 / 15,046 cycle samples")
-    txt(0.5, 3.6, "NASA PCoE (LCO, 2 Ah)\n4 cells, 625 cycle samples")
-    a1 = fig.add_axes([0.045, 0.10, 0.155, 0.27])
+    txt(0.5, 5.30, "Severson / MATR (LFP, 1.1 Ah)\n182 parsed | 140 SOH | 128 RUL", 8.0)
+    txt(0.5, 4.32, "NASA PCoE (LCO, 2 Ah)\n4 cells - second-dataset LOCO", 8.0)
+    txt(0.5, 3.34, "CALCE CS2 (LCO, ~1.1 Ah)\n6 cells - LFP->LCO transfer only", 8.0)
+    a1 = fig.add_axes([0.045, 0.085, 0.155, 0.235])
     for c_, d in list(soh.groupby("cell"))[2:9]:
         a1.plot(d.cycle, d.SOH, lw=0.9, alpha=0.85)
     a1.set_xlabel("cycle", fontsize=7); a1.set_ylabel("SOH", fontsize=7)
@@ -100,10 +101,10 @@ def fig1():
                                 fc="white", ec="#b8860b", lw=1.3, zorder=2))
     txt(7.0, 4.28, "Evaluation protocol", 8.6, w="bold", c="#7a5b00")
     txt(7.0, 3.94, "cell-level splits (no leakage)\nbatch-aware transfer tests\nmulti-seed mean ± s.d.\nLOCO on second dataset", 7.8)
-    ax.add_patch(FancyBboxPatch((6.85, 0.62), 2.5, 1.7, boxstyle="round,pad=0.05",
+    ax.add_patch(FancyBboxPatch((6.85, 0.40), 2.5, 2.05, boxstyle="round,pad=0.05",
                                 fc="#fff7e6", ec="#c87820", lw=1.1, ls="--", zorder=2))
-    txt(7.0, 2.20, "Diagnostics", 8.6, w="bold", c="#a04a00")
-    txt(7.0, 1.86, "active learning vs random\nsymbolic regression law\nMMD drift quantification\nadaptive conformal (ACI)", 7.8)
+    txt(7.0, 2.32, "Diagnostic modules (not deployed)", 8.0, w="bold", c="#a04a00")
+    txt(7.0, 1.98, "active learning vs random\nsymbolic regression law\nMMD cross-batch drift\nadaptive conformal (ACI)\nCALCE LFP->LCO transfer", 7.6)
 
     # ---- Zone 4: 输出 + 区间缩略图 ----
     txt(10.1, 5.25, "SOH:  RMSPE 1.26 ± 0.26%\nRUL:  R² 0.87 (no capacity label)", 8.4)
