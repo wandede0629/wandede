@@ -55,75 +55,108 @@ def fig1():
     from scipy.signal import savgol_filter
     ic = savgol_filter(ic, 51, 3)
 
-    fig = plt.figure(figsize=(13, 6.4))
-    ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 13); ax.set_ylim(0, 6.4); ax.axis("off")
-
-    ZONES = [  # (x, w, color, title)
-        (0.25, 2.9, "#dbe9f6", "1  Public datasets"),
-        (3.45, 2.9, "#d8f0d8", "2  Curve features (15 HIs)"),
-        (6.65, 2.9, "#fdf0d0", "3  Models + evaluation protocol"),
-        (9.85, 2.9, "#f3dcec", "4  Calibrated outputs"),
-    ]
-    for x, w, c, t in ZONES:
-        ax.add_patch(FancyBboxPatch((x, 0.45), w, 5.45, boxstyle="round,pad=0.06",
-                                    fc=c, ec="0.45", lw=1.1, zorder=0))
-        ax.text(x + w / 2, 5.62, t, ha="center", fontsize=10.5, fontweight="bold")
+    W, H = 13.0, 8.0
+    fig = plt.figure(figsize=(W, H))
+    ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, W); ax.set_ylim(0, H); ax.axis("off")
 
     def txt(x, y, s, fs=8.4, ha="left", c="0.15", w=None):
         ax.text(x, y, s, fontsize=fs, ha=ha, va="top", color=c, fontweight=w)
 
-    # ---- Zone 1: 数据 + 容量衰减缩略图 ----
-    txt(0.5, 5.30, "Severson / MATR (LFP, 1.1 Ah)\n182 parsed | 140 SOH | 128 RUL", 8.0)
-    txt(0.5, 4.32, "NASA PCoE (LCO, 2 Ah)\n4 cells - second-dataset LOCO", 8.0)
-    txt(0.5, 3.34, "CALCE CS2 (LCO, ~1.1 Ah)\n6 cells - LFP->LCO transfer only", 8.0)
-    a1 = fig.add_axes([0.045, 0.085, 0.155, 0.235])
-    for c_, d in list(soh.groupby("cell"))[2:9]:
-        a1.plot(d.cycle, d.SOH, lw=0.9, alpha=0.85)
-    a1.set_xlabel("cycle", fontsize=7); a1.set_ylabel("SOH", fontsize=7)
-    a1.tick_params(labelsize=6); a1.set_title("capacity fade (real cells)", fontsize=7.5)
+    def fr(x, y, w, h):
+        return [x / W, y / H, w / W, h / H]
 
-    # ---- Zone 2: 特征 + IC 缩略图 ----
-    txt(3.7, 5.25, "Summary HIs (5)\ncharge time · IR · temperature", 8.2)
-    txt(3.7, 4.45, "Curve shape (6)\ncapacity fractions @ V thresholds", 8.2)
-    txt(3.7, 3.65, "Incremental capacity (4)\npeak · position · FWHM · area", 8.2)
-    a2 = fig.add_axes([0.292, 0.10, 0.155, 0.27])
+    # ===== top banner: evaluation protocol governs every stage =====
+    ax.add_patch(FancyBboxPatch((0.25, 7.05), 12.5, 0.80, boxstyle="round,pad=0.05",
+                                fc="#e9e6f4", ec="#7a6ca5", lw=1.2, zorder=1))
+    ax.text(6.5, 7.63, "Evaluation protocol", ha="center", fontsize=12, fontweight="bold")
+    for lab, x in [("cell-level splits", 2.0), ("batch-aware transfer", 5.2),
+                   ("multi-seed reporting", 8.35), ("LOCO validation", 11.2)]:
+        ax.text(x, 7.26, lab, ha="center", fontsize=8.8)
+    for xsep in (3.6, 6.78, 9.75):
+        ax.plot([xsep, xsep], [7.12, 7.42], color="0.55", lw=0.8, zorder=2)
+
+    # ===== 4 main-pipeline zones =====
+    ZONES = [
+        (0.25, 2.9, "#dbe9f6", "1  Public datasets"),
+        (3.45, 2.9, "#d8f0d8", "2  Physically grounded curve features"),
+        (6.65, 2.9, "#fdf0d0", "3  Prediction models"),
+        (9.85, 2.9, "#f3dcec", "4  Calibrated outputs"),
+    ]
+    for x, w, c, t in ZONES:
+        ax.add_patch(FancyBboxPatch((x, 1.95), w, 4.85, boxstyle="round,pad=0.06",
+                                    fc=c, ec="0.45", lw=1.1, zorder=0))
+        ax.text(x + w / 2, 6.62, t, ha="center", fontsize=9.8, fontweight="bold")
+        ax.add_patch(FancyArrowPatch((x + w / 2, 7.03), (x + w / 2, 6.84), arrowstyle="-|>",
+                                     mutation_scale=10, lw=1.0, color="#7a6ca5", ls="--", zorder=3))
+
+    # ---- Zone 1: datasets + capacity-fade thumbnail ----
+    txt(0.5, 6.20, "Severson/MATR (LFP)\nprimary benchmark", 8.2)
+    txt(0.5, 5.35, "NASA PCoE (LCO)\nsecond-dataset validation", 8.2)
+    txt(0.5, 4.50, "CALCE CS2 (LCO)\ntransfer stress test", 8.2)
+    a1 = fig.add_axes(fr(0.62, 2.20, 2.25, 1.55))
+    for c_, d in list(soh.groupby("cell"))[2:9]:
+        a1.plot(d.cycle, d.SOH * 100, lw=0.9, alpha=0.85)
+    a1.set_xlabel("cycle", fontsize=7); a1.set_ylabel("Capacity (%)", fontsize=7); a1.tick_params(labelsize=6)
+
+    # ---- Zone 2: features + IC thumbnail ----
+    txt(3.7, 6.18, "summary HIs", 8.4)
+    txt(3.7, 5.62, "charge/discharge descriptors", 8.4)
+    txt(3.7, 5.06, "Q(V) features", 8.4)
+    txt(3.7, 4.50, "IC features", 8.4)
+    a2 = fig.add_axes(fr(3.82, 2.20, 2.25, 1.55))
     a2.plot(v_ic, ic, color="#2c7fb8", lw=1.4)
     k = int(np.argmax(ic))
-    a2.annotate("IC peak", (v_ic[k], ic[k]), xytext=(v_ic[k] - 0.55, ic[k] * 0.82),
-                fontsize=7, arrowprops=dict(arrowstyle="->", lw=0.8))
-    a2.set_xlim(2.4, 3.5); a2.set_xlabel("V", fontsize=7); a2.set_ylabel("|dQ/dV|", fontsize=7)
-    a2.tick_params(labelsize=6); a2.set_title("IC curve (real cycle)", fontsize=7.5)
+    a2.annotate("IC peak", (v_ic[k], ic[k]), xytext=(v_ic[k] - 0.6, ic[k] * 0.78),
+                fontsize=6.5, arrowprops=dict(arrowstyle="->", lw=0.8))
+    a2.set_xlim(2.4, 3.5); a2.set_xlabel("Voltage (V)", fontsize=7); a2.set_ylabel("|dQ/dV|", fontsize=7); a2.tick_params(labelsize=6)
 
-    # ---- Zone 3: 模型 + 协议层(独立色带) ----
-    txt(6.9, 5.25, "Ridge  ·  SVR-RBF  ·  Random forest", 8.6, w="bold")
-    txt(6.9, 4.85, "+ split-conformal intervals", 8.2)
-    ax.add_patch(FancyBboxPatch((6.85, 2.55), 2.5, 1.85, boxstyle="round,pad=0.05",
-                                fc="white", ec="#b8860b", lw=1.3, zorder=2))
-    txt(7.0, 4.28, "Evaluation protocol", 8.6, w="bold", c="#7a5b00")
-    txt(7.0, 3.94, "cell-level splits (no leakage)\nbatch-aware transfer tests\nmulti-seed mean ± s.d.\nLOCO on second dataset", 7.8)
-    ax.add_patch(FancyBboxPatch((6.85, 0.40), 2.5, 2.05, boxstyle="round,pad=0.05",
-                                fc="#fff7e6", ec="#c87820", lw=1.1, ls="--", zorder=2))
-    txt(7.0, 2.32, "Diagnostic modules (not deployed)", 8.0, w="bold", c="#a04a00")
-    txt(7.0, 1.98, "active learning vs random\nsymbolic regression law\nMMD cross-batch drift\nadaptive conformal (ACI)\nCALCE LFP->LCO transfer", 7.6)
+    # ---- Zone 3: models + tasks ----
+    for yy, s in [(6.18, "Ridge"), (5.66, "SVR"), (5.14, "Random forest")]:
+        ax.text(8.1, yy, s, ha="center", va="top", fontsize=9)
+    ax.plot([7.15, 9.05], [4.55, 4.55], color="#b8860b", lw=0.9, ls="--")
+    ax.text(8.1, 4.18, "SOH prediction", ha="center", va="top", fontsize=8.6, style="italic")
+    ax.text(8.1, 3.66, "RUL prediction", ha="center", va="top", fontsize=8.6, style="italic")
 
-    # ---- Zone 4: 输出 + 区间缩略图 ----
-    txt(10.1, 5.25, "SOH:  RMSPE 1.26 ± 0.26%\nRUL:  R² 0.87 (no capacity label)", 8.4)
-    txt(10.1, 4.4, "90% prediction intervals\ncoverage 90.0% (SOH)\nACI keeps coverage under drift", 8.2)
-    a4 = fig.add_axes([0.785, 0.10, 0.16, 0.27])
+    # ---- Zone 4: outputs + SOH-with-interval thumbnail ----
+    txt(10.1, 6.18, "SOH estimate", 8.4)
+    txt(10.1, 5.62, "RUL estimate", 8.4)
+    txt(10.1, 5.06, "split-conformal prediction interval", 7.8)
+    txt(10.1, 4.50, "failure-boundary awareness", 8.2)
+    a4 = fig.add_axes(fr(10.05, 2.20, 2.45, 1.55))
     one = soh[soh.cell == soh.cell.unique()[7]].sort_values("cycle")
-    a4.fill_between(one.cycle, one.SOH - 0.015, one.SOH + 0.015, color="red", alpha=0.18)
-    a4.plot(one.cycle, one.SOH, "k-", lw=1.2)
-    a4.set_xlabel("cycle", fontsize=7); a4.set_ylabel("SOH", fontsize=7)
-    a4.tick_params(labelsize=6); a4.set_title("interval to scale (±1.5%)", fontsize=7.5)
+    a4.fill_between(one.cycle, (one.SOH - 0.03) * 100, (one.SOH + 0.03) * 100, color="#5b8ff9", alpha=0.25, label="prediction interval")
+    a4.plot(one.cycle, one.SOH * 100, "k-", lw=1.2, label="SOH")
+    a4.axvline(one.cycle.iloc[-1], color="0.4", ls=":", lw=0.9)
+    a4.annotate("RUL", (one.cycle.iloc[-1], 62), xytext=(one.cycle.iloc[-1] * 0.5, 62),
+                fontsize=6.5, arrowprops=dict(arrowstyle="->", lw=0.8))
+    a4.set_xlabel("cycle", fontsize=7); a4.set_ylabel("SOH (%)", fontsize=7); a4.tick_params(labelsize=6)
+    a4.legend(fontsize=5.5, loc="lower left", frameon=False)
 
-    # ---- 箭头: 主流程(实线深灰) + 诊断(虚线橙) ----
+    # ---- solid arrows between zones (main pipeline) ----
     for x0, x1 in [(3.15, 3.45), (6.35, 6.65), (9.55, 9.85)]:
-        ax.add_patch(FancyArrowPatch((x0, 3.4), (x1, 3.4), arrowstyle="-|>",
-                                     mutation_scale=18, lw=2.2, color="0.25", zorder=3))
-    ax.add_patch(FancyArrowPatch((8.1, 2.55), (8.1, 2.32), arrowstyle="-|>",
-                                 mutation_scale=12, lw=1.4, color="#c87820", ls="--", zorder=3))
+        ax.add_patch(FancyArrowPatch((x0, 4.4), (x1, 4.4), arrowstyle="-|>",
+                                     mutation_scale=17, lw=2.2, color="0.25", zorder=3))
+
+    # ===== bottom: diagnostic studies (separate, not deployed) =====
+    ax.add_patch(FancyBboxPatch((0.25, 0.25), 12.5, 1.45, boxstyle="round,pad=0.05",
+                                fc="white", ec="0.3", lw=1.2, ls="--", zorder=1))
+    ax.text(6.5, 1.55, "Diagnostic studies (not part of deployed pipeline)", ha="center",
+            fontsize=10.5, fontweight="bold")
+    diags = [("1. Active learning", "tests label efficiency"),
+             ("2. Symbolic regression", "interpretable functional\nrelationship"),
+             ("3. Cross-batch drift", "MMD + transfer analysis"),
+             ("4. Adaptive conformal", "recalibration under drift"),
+             ("5. Cross-system transfer", "LFP-to-LCO boundary test")]
+    dw = 2.34
+    for j, (title_, sub) in enumerate(diags):
+        dx = 0.45 + j * (dw + 0.05)
+        ax.add_patch(FancyBboxPatch((dx, 0.40), dw, 0.82, boxstyle="round,pad=0.04",
+                                    fc="#f7f7f7", ec="0.55", lw=0.9, zorder=2))
+        ax.text(dx + 0.12, 1.10, title_, fontsize=8.0, fontweight="bold", va="top")
+        ax.text(dx + 0.12, 0.82, sub, fontsize=6.6, va="top", color="0.25")
+
     fig.savefig(HERE / "fig1_framework.png", bbox_inches="tight")
-    plt.close(fig); print("Fig 1 (redesigned) -> fig1_framework.png")
+    plt.close(fig); print("Fig 1 (two-layer redesign) -> fig1_framework.png")
 
 
 # ================================================================
