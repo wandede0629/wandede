@@ -1,0 +1,22 @@
+# data (not redistributed — download via scripts)
+scripts/data/
+**/*.mat
+**/*.h5
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# outputs / artifacts
+*.png
+*.pdf
+*.docx
+scripts/outputs/
+
+# node
+node_modules/
+
+# os
+.DS_Store
+Thumbs.db

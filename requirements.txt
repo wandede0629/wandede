@@ -1,0 +1,12 @@
+numpy<2
+pandas
+scikit-learn
+scipy
+h5py
+gplearn
+matplotlib
+requests
+tqdm
+openpyxl
+# optional, only for battery_autora_loop.py:
+# autora
